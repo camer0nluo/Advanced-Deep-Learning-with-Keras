@@ -22,7 +22,7 @@ def plot_history(args):
         plt.ylabel('average pixel accuracy')
         plt.title('Average pixel accuracy on test dataset', fontsize=14)
     plt.plot(x, y)
-    filename = args.history + ".png"
+    filename = f"{args.history}.png"
     plt.savefig(filename)
     plt.show()
 

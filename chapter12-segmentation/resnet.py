@@ -150,14 +150,11 @@ def resnet_v1(input_shape, depth, num_classes=10):
 
     # feature maps
     outputs = features_pyramid(x, n_layers)
-    
+
 
     # instantiate model
     name = 'ResNet%dv1' % (depth)
-    model = Model(inputs=inputs,
-                  outputs=outputs,
-                  name=name)
-    return model
+    return Model(inputs=inputs, outputs=outputs, name=name)
 
 
 def resnet_v2(input_shape, depth, n_layers=4):
@@ -253,10 +250,7 @@ def resnet_v2(input_shape, depth, n_layers=4):
 
     # instantiate model.
     name = 'ResNet%dv2' % (depth)
-    model = Model(inputs=inputs,
-                  outputs=outputs,
-                  name=name)
-    return model
+    return Model(inputs=inputs, outputs=outputs, name=name)
 
 
 def features_pyramid(x, n_layers):
@@ -278,7 +272,7 @@ def features_pyramid(x, n_layers):
 
     # additional feature map layers
     for i in range(n_layers - 1):
-        postfix = "_layer" + str(i+2)
+        postfix = f"_layer{str(i + 2)}"
         conv = conv_layer(prev_conv,
                           n_filters,
                           kernel_size=3,
@@ -314,17 +308,11 @@ def build_resnet(input_shape,
     elif version == 2:
         depth = n * 9 + 2
 
-    # model name, depth and version
-    # input_shape (h, w, 3)
-    if version==1:
-        model = resnet_v1(input_shape=input_shape,
-                          depth=depth,
-                          n_layers=n_layers)
-    else:
-        model = resnet_v2(input_shape=input_shape,
-                          depth=depth,
-                          n_layers=n_layers)
-    return model
+    return (
+        resnet_v1(input_shape=input_shape, depth=depth, n_layers=n_layers)
+        if version == 1
+        else resnet_v2(input_shape=input_shape, depth=depth, n_layers=n_layers)
+    )
 
 
 if __name__ == '__main__':

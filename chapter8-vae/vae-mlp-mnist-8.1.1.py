@@ -85,8 +85,8 @@ def plot_results(models,
     axes.set_ylim([ymin,ymax])
 
     # subsample to reduce density of points on the plot
-    z = z[0::2]
-    y_test = y_test[0::2]
+    z = z[::2]
+    y_test = y_test[::2]
     plt.scatter(z[:, 0], z[:, 1], marker="")
     for i, digit in enumerate(y_test):
         axes.annotate(digit, (z[i, 0], z[i, 1]))

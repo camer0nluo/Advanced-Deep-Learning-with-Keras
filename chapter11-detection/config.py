@@ -14,6 +14,5 @@ params = {
 
 # aspect ratios
 def anchor_aspect_ratios():
-    aspect_ratios = config.params['aspect_ratios']
-    return aspect_ratios
+    return config.params['aspect_ratios']
 

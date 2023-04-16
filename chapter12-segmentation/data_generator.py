@@ -89,7 +89,7 @@ class DataGenerator(Sequence):
         # and their corresponding segmentation masks
         y = []
 
-        for i, key in enumerate(keys):
+        for key in keys:
             # images are assumed to be stored 
             # in self.args.data_path
             # key is the image filename 

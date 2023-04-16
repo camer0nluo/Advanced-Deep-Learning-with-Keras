@@ -90,8 +90,8 @@ def plot_results(models,
     axes.set_ylim([ymin,ymax])
 
     # subsample to reduce density of points on the plot
-    z = z[0::2]
-    y_test = y_test[0::2]
+    z = z[::2]
+    y_test = y_test[::2]
     plt.scatter(z[:, 0], z[:, 1], marker="")
     for i, digit in enumerate(y_test):
         axes.annotate(digit, (z[i, 0], z[i, 1]))
@@ -161,7 +161,7 @@ y_labels = Input(shape=label_shape, name='class_labels')
 x = Dense(image_size * image_size)(y_labels)
 x = Reshape((image_size, image_size, 1))(x)
 x = concatenate([inputs, x])
-for i in range(2):
+for _ in range(2):
     filters *= 2
     x = Conv2D(filters=filters,
                kernel_size=kernel_size,
@@ -200,7 +200,7 @@ x = concatenate([latent_inputs, y_labels])
 x = Dense(shape[1]*shape[2]*shape[3], activation='relu')(x)
 x = Reshape((shape[1], shape[2], shape[3]))(x)
 
-for i in range(2):
+for _ in range(2):
     x = Conv2DTranspose(filters=filters,
                         kernel_size=kernel_size,
                         activation='relu',
@@ -279,11 +279,11 @@ if __name__ == '__main__':
                  epochs=epochs,
                  batch_size=batch_size,
                  validation_data=([x_test, to_categorical(y_test)], None))
-        filename = model_name + '.tf'
+        filename = f'{model_name}.tf'
         filepath = os.path.join(save_dir, filename)
         cvae.save_weights(filepath)
 
-    if args.digit in range(0, num_labels):
+    if args.digit in range(num_labels):
         digit = np.array([args.digit])
     else:
         digit = np.random.randint(0, num_labels, 1)

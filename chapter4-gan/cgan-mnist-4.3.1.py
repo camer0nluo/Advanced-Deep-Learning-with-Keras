@@ -67,10 +67,7 @@ def build_generator(inputs, labels, image_size):
     for filters in layer_filters:
         # first two convolution layers use strides = 2
         # the last two use strides = 1
-        if filters > layer_filters[-2]:
-            strides = 2
-        else:
-            strides = 1
+        strides = 2 if filters > layer_filters[-2] else 1
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
         x = Conv2DTranspose(filters=filters,
@@ -79,9 +76,7 @@ def build_generator(inputs, labels, image_size):
                             padding='same')(x)
 
     x = Activation('sigmoid')(x)
-    # input is conditioned by labels
-    generator = Model([inputs, labels], x, name='generator')
-    return generator
+    return Model([inputs, labels], x, name='generator')
 
 
 def build_discriminator(inputs, labels, image_size):
@@ -113,10 +108,7 @@ def build_discriminator(inputs, labels, image_size):
     for filters in layer_filters:
         # first 3 convolution layers use strides = 2
         # last one uses strides = 1
-        if filters == layer_filters[-1]:
-            strides = 1
-        else:
-            strides = 2
+        strides = 1 if filters == layer_filters[-1] else 2
         x = LeakyReLU(alpha=0.2)(x)
         x = Conv2D(filters=filters,
                    kernel_size=kernel_size,
@@ -126,9 +118,7 @@ def build_discriminator(inputs, labels, image_size):
     x = Flatten()(x)
     x = Dense(1)(x)
     x = Activation('sigmoid')(x)
-    # input is conditioned by labels
-    discriminator = Model([inputs, labels], x, name='discriminator')
-    return discriminator
+    return Model([inputs, labels], x, name='discriminator')
 
 
 def train(models, data, params):
@@ -231,11 +221,11 @@ def train(models, data, params):
                         show=False,
                         step=(i + 1),
                         model_name=model_name)
-    
+
     # save the model after training the generator
     # the trained generator can be reloaded for 
     # future MNIST digit generation
-    generator.save(model_name + ".h5")
+    generator.save(f"{model_name}.h5")
 
 
 def plot_images(generator,
@@ -367,9 +357,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.generator:
         generator = load_model(args.generator)
-        class_label = None
-        if args.digit is not None:
-            class_label = args.digit
+        class_label = args.digit if args.digit is not None else None
         test_generator(generator, class_label)
     else:
         build_and_train_models()

@@ -158,7 +158,7 @@ class SSD:
         # prepare model model saving directory.
         save_dir = os.path.join(os.getcwd(), self.args.save_dir)
         model_name = self.backbone.name
-        model_name += '-' + str(self.args.layers) + "layer"
+        model_name += f'-{str(self.args.layers)}layer'
         if self.args.normalize:
             model_name += "-norm"
         if self.args.improved_loss:
@@ -169,7 +169,7 @@ class SSD:
         if self.args.threshold < 1.0:
             model_name += "-extra_anchors" 
 
-        model_name += "-" 
+        model_name += "-"
         model_name += self.args.dataset
         model_name += '-{epoch:03d}.h5'
 
@@ -177,7 +177,7 @@ class SSD:
         print_log(log, self.args.verbose)
         log = "Batch size: %d" % self.args.batch_size
         print_log(log, self.args.verbose)
-        log = "Weights filename: %s" % model_name
+        log = f"Weights filename: {model_name}"
         print_log(log, self.args.verbose)
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
@@ -205,7 +205,7 @@ class SSD:
         if self.args.restore_weights:
             save_dir = os.path.join(os.getcwd(), self.args.save_dir)
             filename = os.path.join(save_dir, self.args.restore_weights)
-            log = "Loading weights: %s" % filename
+            log = f"Loading weights: {filename}"
             print(log, self.args.verbose)
             self.ssd.load_weights(filename)
 

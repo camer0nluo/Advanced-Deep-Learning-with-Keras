@@ -157,10 +157,7 @@ class IIC:
         print("")
         # accuracy per head
         for head in range(self.args.heads):
-            if self.args.heads == 1:
-                y_head = y_pred
-            else:
-                y_head = y_pred[head]
+            y_head = y_pred if self.args.heads == 1 else y_pred[head]
             y_head = np.argmax(y_head, axis=1)
 
             accuracy = unsupervised_labels(list(self.y_test),
@@ -177,7 +174,7 @@ class IIC:
             # if accuracy improves during training, 
             # save the model weights on a file
             if accuracy > self.accuracy \
-                    and self.args.save_weights is not None:
+                        and self.args.save_weights is not None:
                 self.accuracy = accuracy
                 folder = self.args.save_dir
                 os.makedirs(folder, exist_ok=True) 

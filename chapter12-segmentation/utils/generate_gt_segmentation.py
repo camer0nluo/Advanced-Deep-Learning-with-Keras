@@ -27,6 +27,7 @@ def generate_dataset(args):
     keys = js.keys()
     rgb = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
     images_no_objs = []
+    fmt = "%s,%s,%s,%s"
     for key in keys:
         entry = js[key]
         filename = entry["filename"]
@@ -39,7 +40,6 @@ def generate_dataset(args):
             y = shape["all_points_y"]
             name = region["region_attributes"]
             class_id = name["Name"]
-            fmt = "%s,%s,%s,%s"
             line = fmt % (filename, x, y, class_id)
             # print(line)
             xy = np.array([x, y], dtype=np.int32)
@@ -54,11 +54,11 @@ def generate_dataset(args):
             plt.ylabel('y')
             plt.title('Input image', fontsize=14)
             fname = os.path.splitext(filename)[0]
-            fname = fname + "-input.png"
+            fname = f"{fname}-input.png"
             path = os.path.join("images", fname)
             plt.imshow(image)
             plt.savefig(path)
-            #plt.show()
+                    #plt.show()
         else:
             image = np.zeros_like(image)
 
@@ -83,20 +83,20 @@ def generate_dataset(args):
             plt.xlabel('x')
             plt.ylabel('y')
             plt.title('Ground truth semantic segmentation', fontsize=14)
-            fname = name + "-semantic.png"
+            fname = f"{name}-semantic.png"
             path = os.path.join("images", fname)
             plt.imshow(image)
             plt.savefig(path)
-            #plt.show()
+                    #plt.show()
 
-            #plt.xlabel('x')
-            #plt.ylabel('y')
-            #plt.title('Background segmentation', fontsize=14)
-            #fname = name + "-bg.png"
-            #path = os.path.join("images", fname)
-            #plt.imshow(bg, cmap='gray', vmin=0, vmax=255)
-            #plt.savefig(path)
-            #plt.show()
+                    #plt.xlabel('x')
+                    #plt.ylabel('y')
+                    #plt.title('Background segmentation', fontsize=14)
+                    #fname = name + "-bg.png"
+                    #path = os.path.join("images", fname)
+                    #plt.imshow(bg, cmap='gray', vmin=0, vmax=255)
+                    #plt.savefig(path)
+                    #plt.show()
 
 
         shape = (*shape, 1)
@@ -107,7 +107,7 @@ def generate_dataset(args):
         data = data.astype('uint8')
         data_dict[filename] = data
         print(filename, len(masks))
-        if len(masks) == 0:
+        if not masks:
             images_no_objs.append(filename)
 
     if not args.show:

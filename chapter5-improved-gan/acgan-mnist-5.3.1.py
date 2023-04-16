@@ -110,8 +110,10 @@ def train(models, data, params):
         # ['loss', 'activation_1_loss', 
         # 'label_loss', 'activation_1_acc', 'label_acc']
         metrics  = discriminator.train_on_batch(x, [y, labels])
-        fmt = "%d: [disc loss: %f, srcloss: %f," 
-        fmt += "lblloss: %f, srcacc: %f, lblacc: %f]" 
+        fmt = (
+            "%d: [disc loss: %f, srcloss: %f,"
+            + "lblloss: %f, srcacc: %f, lblacc: %f]"
+        )
         log = fmt % (i, metrics[0], metrics[1], \
                 metrics[2], metrics[3], metrics[4])
 
@@ -137,8 +139,10 @@ def train(models, data, params):
         # log the loss and accuracy
         metrics  = adversarial.train_on_batch([noise, fake_labels],
                                               [y, fake_labels])
-        fmt = "%s [advr loss: %f, srcloss: %f,"
-        fmt += "lblloss: %f, srcacc: %f, lblacc: %f]" 
+        fmt = (
+            "%s [advr loss: %f, srcloss: %f,"
+            + "lblloss: %f, srcacc: %f, lblacc: %f]"
+        )
         log = fmt % (log, metrics[0], metrics[1],\
                 metrics[2], metrics[3], metrics[4])
         print(log)
@@ -154,7 +158,7 @@ def train(models, data, params):
     # save the model after training the generator
     # the trained generator can be reloaded 
     # for future MNIST digit generation
-    generator.save(model_name + ".h5")
+    generator.save(f"{model_name}.h5")
 
 
 def build_and_train_models():
@@ -264,9 +268,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.generator:
         generator = load_model(args.generator)
-        class_label = None
-        if args.digit is not None:
-            class_label = args.digit
+        class_label = args.digit if args.digit is not None else None
         test_generator(generator, class_label)
     else:
         build_and_train_models()

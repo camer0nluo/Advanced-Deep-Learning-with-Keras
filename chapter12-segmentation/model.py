@@ -28,16 +28,18 @@ def conv_layer(inputs,
         with optional MaxPooling2D.
     """
 
-    x = Conv2D(filters=filters,
-               kernel_size=kernel_size,
-               strides=strides,
-               kernel_initializer='he_normal',
-               name="conv_"+postfix,
-               padding='same')(inputs)
-    x = BatchNormalization(name="bn_"+postfix)(x)
-    x = Activation('relu', name='relu_'+postfix)(x)
+    x = Conv2D(
+        filters=filters,
+        kernel_size=kernel_size,
+        strides=strides,
+        kernel_initializer='he_normal',
+        name=f"conv_{postfix}",
+        padding='same',
+    )(inputs)
+    x = BatchNormalization(name=f"bn_{postfix}")(x)
+    x = Activation('relu', name=f'relu_{postfix}')(x)
     if use_maxpool:
-        x = MaxPooling2D(name='pool'+postfix)(x)
+        x = MaxPooling2D(name=f'pool{postfix}')(x)
     return x
 
 
@@ -49,14 +51,16 @@ def tconv_layer(inputs,
     """Helper function to build Conv2DTranspose-BN-ReLU 
         layer
     """
-    x = Conv2DTranspose(filters=filters,
-                        kernel_size=kernel_size,
-                        strides=strides,
-                        padding='same',
-                        kernel_initializer='he_normal',
-                        name='tconv_'+postfix)(inputs)
-    x = BatchNormalization(name="bn_"+postfix)(x)
-    x = Activation('relu', name='relu_'+postfix)(x)
+    x = Conv2DTranspose(
+        filters=filters,
+        kernel_size=kernel_size,
+        strides=strides,
+        padding='same',
+        kernel_initializer='he_normal',
+        name=f'tconv_{postfix}',
+    )(inputs)
+    x = BatchNormalization(name=f"bn_{postfix}")(x)
+    x = Activation('relu', name=f'relu_{postfix}')(x)
     return x
 
 
@@ -85,12 +89,12 @@ def build_fcn(input_shape,
     # feature maps to the dimensions
     # equal to 1/4 the image size
     for feature in features:
-        postfix = "fcn_" + str(feature_size)
+        postfix = f"fcn_{str(feature_size)}"
         feature = conv_layer(feature,
                              filters=256,
                              use_maxpool=False,
                              postfix=postfix)
-        postfix = postfix + "_up2d"
+        postfix = f"{postfix}_up2d"
         feature = UpSampling2D(size=size,
                                interpolation='bilinear',
                                name=postfix)(feature)
@@ -113,7 +117,5 @@ def build_fcn(input_shape,
                         name="pre_activation")(x)
     x = Softmax(name="segmentation")(x)
 
-    model = Model(inputs, x, name="fcn")
-
-    return model
+    return Model(inputs, x, name="fcn")
 

@@ -40,15 +40,17 @@ def conv_layer(inputs,
                postfix=None,
                activation=None):
 
-    x = conv2d(inputs,
-               filters=filters,
-               kernel_size=kernel_size,
-               strides=strides,
-               name='conv'+postfix)
-    x = BatchNormalization(name="bn"+postfix)(x)
-    x = ELU(name='elu'+postfix)(x)
+    x = conv2d(
+        inputs,
+        filters=filters,
+        kernel_size=kernel_size,
+        strides=strides,
+        name=f'conv{postfix}',
+    )
+    x = BatchNormalization(name=f"bn{postfix}")(x)
+    x = ELU(name=f'elu{postfix}')(x)
     if use_maxpool:
-        x = MaxPooling2D(name='pool'+postfix)(x)
+        x = MaxPooling2D(name=f'pool{postfix}')(x)
     return x
 
 
@@ -77,7 +79,7 @@ def build_ssd(input_shape,
     inputs = Input(shape=input_shape)
     # no. of base_outputs depends on n_layers
     base_outputs = backbone(inputs)
-    
+
     outputs = []
     feature_shapes = []
     out_cls = []
@@ -88,14 +90,14 @@ def build_ssd(input_shape,
         # as feature maps for class and offset predictions
         # also known as multi-scale predictions
         conv = base_outputs if n_layers==1 else base_outputs[i]
-        name = "cls" + str(i+1)
+        name = f"cls{str(i + 1)}"
         classes  = conv2d(conv,
                           n_anchors*n_classes,
                           kernel_size=3,
                           name=name)
 
         # offsets: (batch, height, width, n_anchors * 4)
-        name = "off" + str(i+1)
+        name = f"off{str(i + 1)}"
         offsets  = conv2d(conv,
                           n_anchors*4,
                           kernel_size=3,
@@ -107,28 +109,28 @@ def build_ssd(input_shape,
         # reshape the class predictions, yielding 3D tensors of 
         # shape (batch, height * width * n_anchors, n_classes)
         # last axis to perform softmax on them
-        name = "cls_res" + str(i+1)
+        name = f"cls_res{str(i + 1)}"
         classes = Reshape((-1, n_classes), 
                           name=name)(classes)
 
         # reshape the offset predictions, yielding 3D tensors of
         # shape (batch, height * width * n_anchors, 4)
         # last axis to compute the (smooth) L1 or L2 loss
-        name = "off_res" + str(i+1)
+        name = f"off_res{str(i + 1)}"
         offsets = Reshape((-1, 4),
                           name=name)(offsets)
         # concat for alignment with ground truth size
         # made of ground truth offsets and mask of same dim
         # needed during loss computation
         offsets = [offsets, offsets]
-        name = "off_cat" + str(i+1)
+        name = f"off_cat{str(i + 1)}"
         offsets = Concatenate(axis=-1,
                               name=name)(offsets)
 
         # collect offset prediction per scale
         out_off.append(offsets)
 
-        name = "cls_out" + str(i+1)
+        name = f"cls_out{str(i + 1)}"
 
         #activation = 'sigmoid' if n_classes==1 else 'softmax'
         #print("Activation:", activation)

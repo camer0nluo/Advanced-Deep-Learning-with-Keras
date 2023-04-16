@@ -48,15 +48,7 @@ def generator(inputs,
     layer_filters = [128, 64, 32, 1]
 
     if labels is not None:
-        if codes is None:
-            # ACGAN labels
-            # concatenate z noise vector and one-hot labels
-            inputs = [inputs, labels]
-        else:
-            # infoGAN codes
-            # concatenate z noise vector, 
-            # one-hot labels and codes 1 & 2
-            inputs = [inputs, labels] + codes
+        inputs = [inputs, labels] if codes is None else [inputs, labels] + codes
         x = concatenate(inputs, axis=1)
     elif codes is not None:
         # generator 0 of StackedGAN
@@ -72,10 +64,7 @@ def generator(inputs,
     for filters in layer_filters:
         # first two convolution layers use strides = 2
         # the last two use strides = 1
-        if filters > layer_filters[-2]:
-            strides = 2
-        else:
-            strides = 1
+        strides = 2 if filters > layer_filters[-2] else 1
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
         x = Conv2DTranspose(filters=filters,
@@ -118,10 +107,7 @@ def discriminator(inputs,
     for filters in layer_filters:
         # first 3 convolution layers use strides = 2
         # last one uses strides = 1
-        if filters == layer_filters[-1]:
-            strides = 1
-        else:
-            strides = 2
+        strides = 1 if filters == layer_filters[-1] else 2
         x = LeakyReLU(alpha=0.2)(x)
         x = Conv2D(filters=filters,
                    kernel_size=kernel_size,
@@ -241,11 +227,11 @@ def train(models, x_train, params):
                         show=False,
                         step=(i + 1),
                         model_name=model_name)
-   
+
     # save the model after training the generator
     # the trained generator can be reloaded 
     # for future MNIST digit generation
-    generator.save(model_name + ".h5")
+    generator.save(f"{model_name}.h5")
 
 
 def plot_images(generator,

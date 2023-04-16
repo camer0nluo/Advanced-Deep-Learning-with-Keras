@@ -86,8 +86,8 @@ def plot_results(models,
     axes.set_ylim([ymin,ymax])
 
     # subsample to reduce density of points on the plot
-    z = z[0::2]
-    y_test = y_test[0::2]
+    z = z[::2]
+    y_test = y_test[::2]
     plt.scatter(z[:, 0], z[:, 1], marker="")
     for i, digit in enumerate(y_test):
         axes.annotate(digit, (z[i, 0], z[i, 1]))
@@ -150,7 +150,7 @@ epochs = 30
 # build encoder model
 inputs = Input(shape=input_shape, name='encoder_input')
 x = inputs
-for i in range(2):
+for _ in range(2):
     filters *= 2
     x = Conv2D(filters=filters,
                kernel_size=kernel_size,
@@ -187,7 +187,7 @@ x = Dense(shape[1] * shape[2] * shape[3],
           activation='relu')(latent_inputs)
 x = Reshape((shape[1], shape[2], shape[3]))(x)
 
-for i in range(2):
+for _ in range(2):
     x = Conv2DTranspose(filters=filters,
                         kernel_size=kernel_size,
                         activation='relu',

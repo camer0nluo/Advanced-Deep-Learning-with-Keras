@@ -103,10 +103,10 @@ class FCN:
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
         model_name = self.backbone.name
-        model_name += '-' + str(self.args.layers) + "layer-"
+        model_name += f'-{str(self.args.layers)}layer-'
         model_name += self.args.dataset
         model_name += '-best-iou.h5'
-        log = "Weights filename: %s" % model_name
+        log = f"Weights filename: {model_name}"
         print_log(log, self.args.verbose)
         self.weights_path = os.path.join(save_dir, model_name)
         self.preload_test()
@@ -124,7 +124,7 @@ class FCN:
         self.test_dictionary = np.load(path,
                                        allow_pickle=True).flat[0]
         self.test_keys = np.array(list(self.test_dictionary.keys()))
-        print_log("Loaded %s" % path, self.args.verbose)
+        print_log(f"Loaded {path}", self.args.verbose)
 
 
     def train(self):
@@ -160,7 +160,7 @@ class FCN:
         if self.args.restore_weights:
             save_dir = os.path.join(os.getcwd(), self.args.save_dir)
             filename = os.path.join(save_dir, self.args.restore_weights)
-            log = "Loading weights: %s" % filename
+            log = f"Loading weights: {filename}"
             print_log(log, self.args.verbose)
             self.fcn.load_weights(filename)
 
@@ -207,9 +207,9 @@ class FCN:
         else:
             raise ValueError("Image file must be known")
 
-        maskfile = imagefile + "-mask.png"
+        maskfile = f"{imagefile}-mask.png"
         mask_path = os.path.join(save_dir, maskfile)
-        inputfile = imagefile + "-input.png"
+        inputfile = f"{imagefile}-input.png"
         input_path = os.path.join(save_dir, inputfile)
         segmentation = self.segment_objects(image,
                                             normalized=False)
@@ -246,7 +246,7 @@ class FCN:
             gt = self.test_dictionary[key]
             i_pla = 100 * (gt == segmentation).all(axis=(2)).mean()
             s_pla += i_pla
-            
+
             i_iou = 0
             n_masks = 0
             # compute mask for each object in the test image
@@ -263,12 +263,12 @@ class FCN:
                     iou = intersection / union
                     i_iou += iou
                     n_masks += 1
-            
+
             # average iou per image
             i_iou /= n_masks
             if not self.args.train:
                 log = "%s: %d objs, miou=%0.4f ,pla=%0.2f%%"\
-                      % (key, n_masks, i_iou, i_pla)
+                          % (key, n_masks, i_iou, i_pla)
                 print_log(log, self.args.verbose)
 
             # accumulate all image ious
@@ -277,7 +277,7 @@ class FCN:
                 self.evaluate(key, image)
 
         n_test = len(self.test_keys)
-        m_iou = s_iou / n_test 
+        m_iou = s_iou / n_test
         self.miou_history.append(m_iou)
         np.save("miou_history.npy", self.miou_history)
         m_pla = s_pla / n_test
@@ -285,16 +285,14 @@ class FCN:
         np.save("mpla_history.npy", self.mpla_history)
         if m_iou > self.miou and self.args.train:
             log = "\nOld best mIoU=%0.4f, New best mIoU=%0.4f, Pixel level accuracy=%0.2f%%"\
-                    % (self.miou, m_iou, m_pla)
+                        % (self.miou, m_iou, m_pla)
             print_log(log, self.args.verbose)
             self.miou = m_iou
-            print_log("Saving weights... %s"\
-                      % self.weights_path,\
-                      self.args.verbose)
+            print_log(f"Saving weights... {self.weights_path}", self.args.verbose)
             self.fcn.save_weights(self.weights_path)
         else:
             log = "\nCurrent mIoU=%0.4f, Pixel level accuracy=%0.2f%%"\
-                    % (m_iou, m_pla)
+                        % (m_iou, m_pla)
             print_log(log, self.args.verbose)
 
 

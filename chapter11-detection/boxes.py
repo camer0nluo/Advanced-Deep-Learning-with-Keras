@@ -55,7 +55,7 @@ def nms(args, classes, offsets, anchors):
         # Lines 3 and 4
         score_idx = np.argmax(scores, axis=0)
         score_max = scores[score_idx]
-        
+
         # get all non max probability & set it as new nonbg
         # Line 5
         nonbg = nonbg[nonbg != score_idx]
@@ -68,7 +68,7 @@ def nms(args, classes, offsets, anchors):
         # Line 5
         indexes.append(score_idx)
         score_anc = anchors[score_idx]
-        score_off = offsets[score_idx][0:4]
+        score_off = offsets[score_idx][:4]
         score_box = score_anc + score_off
         score_box = np.expand_dims(score_box, axis=0)
         nonbg_copy = np.copy(nonbg)
@@ -77,7 +77,7 @@ def nms(args, classes, offsets, anchors):
         # perform Non-Max Suppression (NMS)
         for idx in nonbg_copy:
             anchor = anchors[idx]
-            offset = offsets[idx][0:4]
+            offset = offsets[idx][:4]
             box = anchor + offset
             box = np.expand_dims(box, axis=0)
             iou = layer_utils.iou(box, score_box)[0][0]
@@ -134,11 +134,7 @@ def show_boxes(args,
                               image.shape,
                               index=index)
         anchor = np.reshape(anchor, [-1, 4])
-        if index == 0:
-            anchors = anchor
-        else:
-            anchors = np.concatenate((anchors, anchor), axis=0)
-
+        anchors = anchor if index == 0 else np.concatenate((anchors, anchor), axis=0)
     # get all non-zero (non-background) objects
     # objects = np.argmax(classes, axis=1)
     # print(np.unique(objects, return_counts=True))
@@ -171,10 +167,10 @@ def show_boxes(args,
     yoff = 1
     for idx in indexes:
         #batch, row, col, box
-        anchor = anchors[idx] 
+        anchor = anchors[idx]
         offset = offsets[idx]
-        
-        anchor += offset[0:4]
+
+        anchor += offset[:4]
         # default anchor box format is 
         # xmin, xmax, ymin, ymax
         boxes.append(anchor)

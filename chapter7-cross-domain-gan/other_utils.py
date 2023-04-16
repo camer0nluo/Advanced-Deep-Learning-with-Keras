@@ -41,7 +41,7 @@ def display_images(imgs,
     cols = imgs.shape[2]
     channels = imgs.shape[3]
     side = int(math.sqrt(imgs.shape[0]))
-    assert int(side * side) == imgs.shape[0]
+    assert int(side**2) == imgs.shape[0]
 
     # create saved_images folder
     if imgs_dir is None:
@@ -66,7 +66,7 @@ def display_images(imgs,
     plt.savefig(filename)
     if show:
         plt.show()
-    
+
     plt.close('all')
 
 
