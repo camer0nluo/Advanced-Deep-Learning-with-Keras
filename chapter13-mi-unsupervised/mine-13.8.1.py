@@ -267,8 +267,7 @@ class LinearClassifier:
                                      y_test,
                                      batch_size=128,
                                      verbose=0)
-        accuracy = score[1] * 100
-        return accuracy
+        return score[1] * 100
 
 
     @property

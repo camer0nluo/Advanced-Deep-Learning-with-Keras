@@ -100,9 +100,7 @@ class DQNAgent:
 
         # exploit
         q_values = self.q_model.predict(state)
-        # select the action with max Q-value
-        action = np.argmax(q_values[0])
-        return action
+        return np.argmax(q_values[0])
 
 
     def remember(self, state, action, reward, next_state, done):
@@ -275,9 +273,9 @@ if __name__ == '__main__':
     logger.setLevel(logger.ERROR)
     env = gym.make(args.env_id)
 
-    outdir = "/tmp/dqn-%s" % args.env_id
+    outdir = f"/tmp/dqn-{args.env_id}"
     if args.ddqn:
-        outdir = "/tmp/ddqn-%s" % args.env_id
+        outdir = f"/tmp/ddqn-{args.env_id}"
 
     if args.no_render:
         env = wrappers.Monitor(env,
@@ -325,7 +323,7 @@ if __name__ == '__main__':
         # call experience relay
         if len(agent.memory) >= batch_size:
             agent.replay(batch_size)
-    
+
         scores.append(total_reward)
         mean_score = np.mean(scores)
         if mean_score >= win_reward[args.env_id] \

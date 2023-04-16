@@ -148,7 +148,7 @@ def train(models, x_train, params):
     # save the model after training the generator
     # the trained generator can be reloaded 
     # for future MNIST digit generation
-    generator.save(model_name + ".h5")
+    generator.save(f"{model_name}.h5")
 
 
 def wasserstein_loss(y_label, y_pred):

@@ -1,6 +1,7 @@
 ''' Autoencoder with Classifier
 '''
 
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -46,7 +47,7 @@ latent_dim = 16
 inputs = Input(shape=input_shape, name='encoder_input')
 x = inputs
 # Stack of BN-ReLU-Conv2D-MaxPooling blocks
-for i in range(2):
+for _ in range(2):
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     filters = filters * 2
@@ -72,7 +73,7 @@ x = Dense(shape[1]*shape[2]*shape[3])(latent_inputs)
 x = Reshape((shape[1], shape[2], shape[3]))(x)
 
 # Stack of BN-ReLU-Transposed Conv2D-UpSampling blocks
-for i in range(2):
+for _ in range(2):
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = Conv2DTranspose(filters=filters, kernel_size=kernel_size,

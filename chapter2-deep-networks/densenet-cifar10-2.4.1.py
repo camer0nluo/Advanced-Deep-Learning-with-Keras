@@ -110,7 +110,7 @@ x = concatenate([inputs, x])
 # stack of dense blocks bridged by transition layers
 for i in range(num_dense_blocks):
     # a dense block is a stack of bottleneck layers
-    for j in range(num_bottleneck_layers):
+    for _ in range(num_bottleneck_layers):
         y = BatchNormalization()(x)
         y = Activation('relu')(y)
         y = Conv2D(4 * growth_rate,

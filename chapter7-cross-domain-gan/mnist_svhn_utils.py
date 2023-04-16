@@ -98,8 +98,4 @@ def loadmat(filename):
     rows =data.shape[0]
     cols = data.shape[1]
     channels = data.shape[2]
-    # in matlab data, the image index is the last index
-    # in keras, the image index is the first index so
-    # perform transpose for the last index
-    data = np.transpose(data, (3, 0, 1, 2))
-    return data
+    return np.transpose(data, (3, 0, 1, 2))

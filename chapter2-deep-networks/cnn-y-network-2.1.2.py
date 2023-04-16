@@ -3,6 +3,7 @@
 ~99.3% test accuracy
 '''
 
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -45,7 +46,7 @@ x = left_inputs
 filters = n_filters
 # 3 layers of Conv2D-Dropout-MaxPooling2D
 # number of filters doubles after each layer (32-64-128)
-for i in range(3):
+for _ in range(3):
     x = Conv2D(filters=filters,
                kernel_size=kernel_size,
                padding='same',
@@ -60,7 +61,7 @@ y = right_inputs
 filters = n_filters
 # 3 layers of Conv2D-Dropout-MaxPooling2D
 # number of filters doubles after each layer (32-64-128)
-for i in range(3):
+for _ in range(3):
     y = Conv2D(filters=filters,
                kernel_size=kernel_size,
                padding='same',

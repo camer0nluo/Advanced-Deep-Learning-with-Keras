@@ -168,12 +168,12 @@ def train(models, data, params):
                             show=False,
                             step=(i + 1),
                             model_name=model_name)
-   
+
         # save the model after training the generator
         # the trained generator can be reloaded for
         # future MNIST digit generation
         if (i + 1) % (2 * save_interval) == 0:
-            generator.save(model_name + ".h5")
+            generator.save(f"{model_name}.h5")
 
 
 def mi_loss(c, q_of_c_given_x):

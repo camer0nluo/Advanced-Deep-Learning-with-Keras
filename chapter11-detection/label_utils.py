@@ -52,17 +52,12 @@ def load_csv(path):
     data = []
     with open(path) as csv_file:
         rows = csv.reader(csv_file, delimiter=',')
-        for row in rows:
-            data.append(row)
-
+        data.extend(iter(rows))
     return np.array(data)
 
 def get_label_dictionary(labels, keys):
     """Associate key (filename) to value (box coords, class)"""
-    dictionary = {}
-    for key in keys:
-        dictionary[key] = [] # empty boxes
-
+    dictionary = {key: [] for key in keys}
     for label in labels:
         if len(label) != 6:
             print("Incomplete label:", label[0])

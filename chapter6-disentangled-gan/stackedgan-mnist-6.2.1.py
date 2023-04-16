@@ -155,12 +155,11 @@ def build_discriminator(inputs, z_dim=50):
                            name='feature1_source')(f1_source)
 
     # z1 reonstruction (Q1 network)
-    z1_recon = Dense(z_dim)(x) 
+    z1_recon = Dense(z_dim)(x)
     z1_recon = Activation('tanh', name='z1')(z1_recon)
-    
+
     discriminator_outputs = [f1_source, z1_recon]
-    dis1 = Model(inputs, discriminator_outputs, name='dis1')
-    return dis1
+    return Model(inputs, discriminator_outputs, name='dis1')
 
 
 def train(models, data, params):
@@ -200,6 +199,7 @@ def train(models, data, params):
           "Labels for generated images: ",
           np.argmax(noise_class, axis=1))
 
+    fmt = "%s [adv1_loss: %f, enc1_acc: %f]"
     for i in range(train_steps):
         # train the discriminator1 for 1 batch
         # 1 batch of real (label=1.0) and fake feature1 (label=0.0)
@@ -240,14 +240,14 @@ def train(models, data, params):
         # log the overall loss only
         log = "%d: [dis1_loss: %f]" % (i, metrics[0])
 
-         
+
         # train the discriminator0 for 1 batch
         # 1 batch of real (label=1.0) and fake images (label=0.0)
         # generate random 50-dim z0 latent code
         fake_z0 = np.random.normal(scale=0.5, size=[batch_size, z_dim])
         # generate fake images from real feature1 and fake z0
         fake_images = gen0.predict([real_feature1, fake_z0])
-       
+
         # real + fake data
         x = np.concatenate((real_images, fake_images))
         z0 = np.concatenate((fake_z0, fake_z0))
@@ -270,14 +270,13 @@ def train(models, data, params):
 
         # label fake feature1 as real
         y = np.ones([batch_size, 1])
-    
+
         # train generator1 (thru adversarial) by fooling i
         # the discriminator
         # and approximating encoder1 feature1 generator
         # joint training: adversarial1, entropy1, conditional1
         metrics = adv1.train_on_batch(gen1_inputs,
                                       [y, fake_z1, real_labels])
-        fmt = "%s [adv1_loss: %f, enc1_acc: %f]"
         # log the overall loss and classification accuracy
         log = fmt % (log, metrics[0], metrics[6])
 
@@ -308,8 +307,8 @@ def train(models, data, params):
     # save the modelis after training generator0 & 1
     # the trained generator can be reloaded for
     # future MNIST digit generation
-    gen1.save(model_name + "-gen1.h5")
-    gen0.save(model_name + "-gen0.h5")
+    gen1.save(f"{model_name}-gen1.h5")
+    gen0.save(f"{model_name}-gen0.h5")
     
 
 def plot_images(generators,
@@ -381,7 +380,7 @@ def train_encoder(model,
               epochs=10,
               batch_size=batch_size)
 
-    model.save(model_name + "-encoder.h5")
+    model.save(f"{model_name}-encoder.h5")
     score = model.evaluate(x_test,
                            y_test, 
                            batch_size=batch_size,

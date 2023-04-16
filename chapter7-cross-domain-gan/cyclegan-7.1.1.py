@@ -81,10 +81,7 @@ def encoder_layer(inputs,
     x = inputs
     if instance_norm:
         x = InstanceNormalization()(x)
-    if activation == 'relu':
-        x = Activation('relu')(x)
-    else:
-        x = LeakyReLU(alpha=0.2)(x)
+    x = Activation('relu')(x) if activation == 'relu' else LeakyReLU(alpha=0.2)(x)
     x = conv(x)
     return x
 
@@ -114,10 +111,7 @@ def decoder_layer(inputs,
     x = inputs
     if instance_norm:
         x = InstanceNormalization()(x)
-    if activation == 'relu':
-        x = Activation('relu')(x)
-    else:
-        x = LeakyReLU(alpha=0.2)(x)
+    x = Activation('relu')(x) if activation == 'relu' else LeakyReLU(alpha=0.2)(x)
     x = conv(x)
     x = concatenate([x, paired_inputs])
     return x
@@ -179,9 +173,7 @@ def build_generator(input_shape,
                               activation='sigmoid',
                               padding='same')(d3)
 
-    generator = Model(inputs, outputs, name=name)
-
-    return generator
+    return Model(inputs, outputs, name=name)
 
 
 def build_discriminator(input_shape,
@@ -240,9 +232,7 @@ def build_discriminator(input_shape,
         outputs = Activation('linear')(x)
 
 
-    discriminator = Model(inputs, outputs, name=name)
-
-    return discriminator
+    return Model(inputs, outputs, name=name)
 
 
 def train_cyclegan(models,
@@ -294,6 +284,7 @@ def train_cyclegan(models,
     valid_fake = np.concatenate((valid, fake))
     start_time = datetime.datetime.now()
 
+    fmt = "%s [adv loss: %f] [time: %s]"
     for step in range(train_steps):
         # sample a batch of real target data
         rand_indexes = np.random.randint(0, 
@@ -308,7 +299,7 @@ def train_cyclegan(models,
         real_source = source_data[rand_indexes]
         # generate a batch of fake target data fr real source data
         fake_target = g_target.predict(real_source)
-        
+
         # combine real and fake into one batch
         x = np.concatenate((real_target, fake_target))
         # train the target discriminator using fake/real data
@@ -329,7 +320,6 @@ def train_cyclegan(models,
         y = [valid, valid, real_source, real_target]
         metrics = adv.train_on_batch(x, y)
         elapsed_time = datetime.datetime.now() - start_time
-        fmt = "%s [adv loss: %f] [time: %s]"
         log = fmt % (log, metrics[0], elapsed_time)
         print(log)
         if (step + 1) % save_interval == 0:
@@ -341,8 +331,8 @@ def train_cyclegan(models,
                            show=False)
 
     # save the models after training the generators
-    g_source.save(model_name + "-g_source.h5")
-    g_target.save(model_name + "-g_target.h5")
+    g_source.save(f"{model_name}-g_source.h5")
+    g_target.save(f"{model_name}-g_target.h5")
 
 
 def build_cyclegan(shapes,
@@ -376,10 +366,10 @@ def build_cyclegan(shapes,
     source_shape, target_shape = shapes
     lr = 2e-4
     decay = 6e-8
-    gt_name = "gen_" + target_name
-    gs_name = "gen_" + source_name
-    dt_name = "dis_" + target_name
-    ds_name = "dis_" + source_name
+    gt_name = f"gen_{target_name}"
+    gs_name = f"gen_{source_name}"
+    dt_name = f"dis_{target_name}"
+    ds_name = f"dis_{source_name}"
 
     # build target and source generators
     g_target = build_generator(source_shape,
@@ -488,8 +478,7 @@ def graycifar10_cross_colorcifar10(g_models=None):
               'CIFAR10 predicted target images.',
               'CIFAR10 reconstructed source images.',
               'CIFAR10 reconstructed target images.')
-    dirs = ('cifar10_source-%s' % postfix, \
-            'cifar10_target-%s' % postfix)
+    dirs = f'cifar10_source-{postfix}', f'cifar10_target-{postfix}'
 
     # generate predicted target(color) and source(gray) images
     if g_models is not None:
@@ -504,11 +493,13 @@ def graycifar10_cross_colorcifar10(g_models=None):
         return
 
     # build the cyclegan for cifar10 colorization
-    models = build_cyclegan(shapes,
-                            "gray-%s" % postfix,
-                            "color-%s" % postfix,
-                            kernel_size=kernel_size,
-                            patchgan=patchgan)
+    models = build_cyclegan(
+        shapes,
+        f"gray-{postfix}",
+        f"color-{postfix}",
+        kernel_size=kernel_size,
+        patchgan=patchgan,
+    )
     # patch size is divided by 2^n since we downscaled the input
     # in the discriminator by 2^n (ie. we use strides=2 n times)
     patch = int(source_data.shape[1] / 2**4) if patchgan else 1
@@ -540,8 +531,7 @@ def mnist_cross_svhn(g_models=None):
               'SVHN predicted target images.',
               'MNIST reconstructed source images.',
               'SVHN reconstructed target images.')
-    dirs = ('mnist_source-%s' \
-            % postfix, 'svhn_target-%s' % postfix)
+    dirs = f'mnist_source-{postfix}', f'svhn_target-{postfix}'
 
     # generate predicted target(svhn) and source(mnist) images
     if g_models is not None:
@@ -556,11 +546,13 @@ def mnist_cross_svhn(g_models=None):
         return
 
     # build the cyclegan for mnist cross svhn
-    models = build_cyclegan(shapes,
-                            "mnist-%s" % postfix,
-                            "svhn-%s" % postfix,
-                            kernel_size=kernel_size,
-                            patchgan=patchgan)
+    models = build_cyclegan(
+        shapes,
+        f"mnist-{postfix}",
+        f"svhn-{postfix}",
+        kernel_size=kernel_size,
+        patchgan=patchgan,
+    )
     # patch size is divided by 2^n since we downscaled the input
     # in the discriminator by 2^n (ie. we use strides=2 n times)
     patch = int(source_data.shape[1] / 2**4) if patchgan else 1

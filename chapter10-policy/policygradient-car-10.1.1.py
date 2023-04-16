@@ -113,8 +113,7 @@ class PolicyAgent:
         """
         mean, stddev, action = args
         dist = tfp.distributions.Normal(loc=mean, scale=stddev)
-        logp = dist.log_prob(action)
-        return logp
+        return dist.log_prob(action)
 
 
     def entropy(self, args):
@@ -127,8 +126,7 @@ class PolicyAgent:
         """
         mean, stddev = args
         dist = tfp.distributions.Normal(loc=mean, scale=stddev)
-        entropy = dist.entropy()
-        return entropy
+        return dist.entropy()
 
 
     def build_autoencoder(self):
@@ -293,8 +291,7 @@ class PolicyAgent:
         Return:
             loss (tensor): computed loss
         """
-        loss = -K.mean(y_pred * y_true, axis=-1)
-        return loss
+        return -K.mean(y_pred * y_true, axis=-1)
 
 
     def save_weights(self, 
@@ -663,8 +660,7 @@ def setup_parser():
                         "--train",
                         help="Enable training",
                         action='store_true')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def setup_files(args):
@@ -693,16 +689,16 @@ def setup_files(args):
         print(postfix, " folder exists")
 
     fileid = "%s-%d" % (postfix, int(time.time()))
-    actor_weights = "actor_weights-%s.h5" % fileid
+    actor_weights = f"actor_weights-{fileid}.h5"
     actor_weights = os.path.join(postfix, actor_weights)
-    encoder_weights = "encoder_weights-%s.h5" % fileid
+    encoder_weights = f"encoder_weights-{fileid}.h5"
     encoder_weights = os.path.join(postfix, encoder_weights)
     value_weights = None
     if has_value_model:
-        value_weights = "value_weights-%s.h5" % fileid
+        value_weights = f"value_weights-{fileid}.h5"
         value_weights = os.path.join(postfix, value_weights)
 
-    outdir = "/tmp/%s" % postfix
+    outdir = f"/tmp/{postfix}"
 
     misc = (postfix, fileid, outdir, has_value_model)
     weights = (actor_weights, encoder_weights, value_weights)
@@ -731,11 +727,9 @@ def setup_agent(env, args):
     if args.encoder_weights:
         agent.load_encoder_weights(args.encoder_weights)
     else:
-        x_train = [env.observation_space.sample() \
-                   for x in range(200000)]
+        x_train = [env.observation_space.sample() for _ in range(200000)]
         x_train = np.array(x_train)
-        x_test = [env.observation_space.sample() \
-                  for x in range(20000)]
+        x_test = [env.observation_space.sample() for _ in range(20000)]
         x_test = np.array(x_test)
         agent.train_autoencoder(x_train, x_test)
 
@@ -761,7 +755,7 @@ def setup_writer(fileid, postfix):
     """
     # we dump episode num, step, total reward, and 
     # number of episodes solved in a csv file for analysis
-    csvfilename = "%s.csv" % fileid
+    csvfilename = f"{fileid}.csv"
     csvfilename = os.path.join(postfix, csvfilename)
     csvfile = open(csvfilename, 'w', 1)
     writer = csv.writer(csvfile,
@@ -786,11 +780,11 @@ if __name__ == '__main__':
     env = gym.make(args.env_id)
     env = wrappers.Monitor(env, directory=outdir, force=True)
     env.seed(0)
-    
+
     # register softplusk activation. just in case the reader wants
     # to use this activation
     get_custom_objects().update({'softplusk':Activation(softplusk)})
-   
+
     agent, train = setup_agent(env, args)
 
     if args.train or train:
@@ -800,7 +794,7 @@ if __name__ == '__main__':
     # number of episodes we run the training
     episode_count = 1000
     state_dim = env.observation_space.shape[0]
-    n_solved = 0 
+    n_solved = 0
     # sampling and fitting
     for episode in range(episode_count):
         state = env.reset()
@@ -817,10 +811,7 @@ if __name__ == '__main__':
             # [min, max] action = [-1.0, 1.0]
             # for baseline, random choice of action will not move
             # the car pass the flag pole
-            if args.random:
-                action = env.action_space.sample()
-            else:
-                action = agent.act(state)
+            action = env.action_space.sample() if args.random else agent.act(state)
             env.render()
             # after executing the action, get s', r, done
             next_state, reward, done, _ = env.step(action)
@@ -854,8 +845,10 @@ if __name__ == '__main__':
         if reward > 0:
             n_solved += 1
         elapsed = datetime.datetime.now() - start_time
-        fmt = "Episode=%d, Step=%d, Action=%f, Reward=%f"
-        fmt = fmt + ", Total_Reward=%f, Elapsed=%s"
+        fmt = (
+            "Episode=%d, Step=%d, Action=%f, Reward=%f"
+            + ", Total_Reward=%f, Elapsed=%s"
+        )
         msg = (episode, step, action[0], reward, total_reward, elapsed)
         print(fmt % msg)
         # log the data on the opened csv file for analysis

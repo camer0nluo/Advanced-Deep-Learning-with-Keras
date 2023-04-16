@@ -66,11 +66,7 @@ class DataGenerator(Sequence):
         else:
             (_, _), (self.data, self.label) = dataset.load_data()
 
-        if self.args.dataset == mnist:
-            self.n_channels = 1
-        else:
-            self.n_channels = self.data.shape[3]
-
+        self.n_channels = 1 if self.args.dataset == mnist else self.data.shape[3]
         image_size = self.data.shape[1]
         side = image_size - self.crop_size
         self.input_shape = [side, side, self.n_channels]
@@ -83,7 +79,7 @@ class DataGenerator(Sequence):
         orig_shape = [-1, image_size, image_size, self.n_channels]
         self.data = np.reshape(self.data, orig_shape)
         self.data = self.data.astype('float32') / 255
-        self.indexes = [i for i in range(self.data.shape[0])]
+        self.indexes = list(range(self.data.shape[0]))
 
 
     def on_epoch_end(self):
@@ -195,9 +191,7 @@ class DataGenerator(Sequence):
 
             x_train = np.concatenate([x1, x2], axis=0)
             y_train = np.concatenate([y1, y2], axis=0)
-            y = []
-            for i in range(self.args.heads):
-                y.append(y_train)
+            y = [y_train for _ in range(self.args.heads)]
             return x_train, y
 
         return x1, y1

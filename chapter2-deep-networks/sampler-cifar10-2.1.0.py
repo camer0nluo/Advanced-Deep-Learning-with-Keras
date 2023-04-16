@@ -2,6 +2,7 @@
 using Keras API
 '''
 
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -23,29 +24,40 @@ import matplotlib.pyplot as plt
 class_id = 0
 class_count = 0
 images = None
-for i in range(100):
+for _ in range(100):
     while True:
         index = np.random.randint(0, x_train.shape[0], size=1)
         image = x_train[index]
         if y_train[index] == class_id:
             break
 
-    if images is None:
-        images = image
-    else:
-        images = np.concatenate([images, image], axis=0)
+    images = image if images is None else np.concatenate([images, image], axis=0)
     class_count += 1
     if class_count == 10:
         class_id += 1
         class_count = 0
-      
+
 print(images.shape)
 
 plt.figure(figsize=(10, 10))
 num_images = images.shape[0]
 image_size = images.shape[1]
 rows = int(math.sqrt(num_images))
-row_names = ['{}'.format(row) for row in ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']]
+row_names = [
+    f'{row}'
+    for row in [
+        'airplane',
+        'automobile',
+        'bird',
+        'cat',
+        'deer',
+        'dog',
+        'frog',
+        'horse',
+        'ship',
+        'truck',
+    ]
+]
 index = 0
 for i in range(num_images):
     ax = plt.subplot(rows, rows, i + 1)

@@ -58,9 +58,8 @@ class  VideoDemo():
             #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) #/ 255.0
 
             cv2.imshow('image', image)
-            if self.videowriter is not None:
-                if self.videowriter.isOpened():
-                    self.videowriter.write(image)
+            if self.videowriter is not None and self.videowriter.isOpened():
+                self.videowriter.write(image)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 

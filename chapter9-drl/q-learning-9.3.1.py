@@ -135,7 +135,7 @@ class QWorld:
         # determine the next_state given state and action
         next_state = self.transition_table[self.state, action]
         # done is True if next_state is Goal or Hole
-        done = next_state == 2 or next_state == 5
+        done = next_state in [2, 5]
         # reward given the state and action
         reward = self.reward_table[self.state, action]
         # the enviroment is now in new state
@@ -161,8 +161,7 @@ class QWorld:
         # or action is from exploitation
         # exploit - choose action with max Q-value
         self.is_explore = False
-        action = np.argmax(self.q_table[self.state])
-        return action
+        return np.argmax(self.q_table[self.state])
 
 
     def update_q_table(self, state, action, reward, next_state):

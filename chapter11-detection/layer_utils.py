@@ -201,8 +201,7 @@ def intersection(boxes1, boxes2):
 
     side_lengths = np.maximum(0, max_xy - min_xy)
 
-    intersection_areas = side_lengths[:, :, 0] * side_lengths[:, :, 1]
-    return intersection_areas
+    return side_lengths[:, :, 0] * side_lengths[:, :, 1]
 
 
 def union(boxes1, boxes2, intersection_areas):
@@ -233,8 +232,7 @@ def union(boxes1, boxes2, intersection_areas):
     areas = width * height
     boxes2_areas = np.tile(np.expand_dims(areas, axis=0), reps=(m,1))
 
-    union_areas = boxes1_areas + boxes2_areas - intersection_areas
-    return union_areas
+    return boxes1_areas + boxes2_areas - intersection_areas
 
 
 def iou(boxes1, boxes2):

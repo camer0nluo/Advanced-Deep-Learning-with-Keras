@@ -46,17 +46,13 @@ class QAgent:
         self.epsilon_min = 0.1
         self.epsilon_decay = self.epsilon_min / self.epsilon
         self.epsilon_decay = self.epsilon_decay ** \
-                             (1. / float(episodes))
+                                 (1. / float(episodes))
 
         # learning rate of Q-Learning
         self.learning_rate = 0.1
-        
-        # file where Q Table is saved on/restored fr
-        if slippery:
-            self.filename = 'q-frozenlake-slippery.npy'
-        else:
-            self.filename = 'q-frozenlake.npy'
 
+        # file where Q Table is saved on/restored fr
+        self.filename = 'q-frozenlake-slippery.npy' if slippery else 'q-frozenlake.npy'
         # demo or train mode 
         self.demo = demo
         # if demo mode, no exploration
@@ -79,9 +75,7 @@ class QAgent:
             # explore - do random action
             return self.action_space.sample()
 
-        # exploit - choose action with max Q-value
-        action = np.argmax(self.q_table[state])
-        return action
+        return np.argmax(self.q_table[state])
 
 
     def update_q_table(self, state, action, reward, next_state):
@@ -160,17 +154,13 @@ if __name__ == '__main__':
     env = gym.make(args.env_id)
 
     # debug dir
-    outdir = "/tmp/q-learning-%s" % args.env_id
+    outdir = f"/tmp/q-learning-{args.env_id}"
     env = wrappers.Monitor(env, directory=outdir, force=True)
     env.seed(0)
     if not args.slippery:
         env.is_slippery = False
 
-    if args.delay is not None:
-        delay = args.delay 
-    else: 
-        delay = 0
-
+    delay = args.delay if args.delay is not None else 0
     # number of times the Goal state is reached
     wins = 0
     # number of episodes to train
@@ -200,12 +190,8 @@ if __name__ == '__main__':
             # render the environment for human debugging
             env.render()
             # training of Q Table
-            if done:
-                # update exploration-exploitation ratio
-                # reward > 0 only when Goal is reached
-                # otherwise, it is a Hole
-                if reward > 0:
-                    wins += 1
+            if done and reward > 0:
+                wins += 1
 
             if not args.demo:
                 agent.update_q_table(state,
